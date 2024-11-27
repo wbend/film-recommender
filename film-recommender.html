@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Film Recommender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #recommendation {
+            margin-top: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Random Film Recommender</h1>
+    <p>Click the button below to get a random film recommendation:</p>
+    <button id="recommendButton">Recommend a Film</button>
+    <div id="recommendation"></div>
+
+    <script>
+        async function fetchCSV() {
+            const response = await fetch('Things to Watch - Sheet1.csv');
+            const csvText = await response.text();
+            return csvText;
+        }
+
+        function parseCSV(csvText) {
+            const rows = csvText.split('\n').slice(1); // Remove header row
+            return rows.map(row => {
+                const [title, year, genre] = row.split(',');
+                return { title, year, genre };
+            }).filter(film => film.title && film.year && film.genre);
+        }
+
+        function getRandomFilm(films) {
+            const randomIndex = Math.floor(Math.random() * films.length);
+            return films[randomIndex];
+        }
+
+        document.getElementById('recommendButton').addEventListener('click', async () => {
+            const csvText = await fetchCSV();
+            const films = parseCSV(csvText);
+            const randomFilm = getRandomFilm(films);
+
+            const recommendationDiv = document.getElementById('recommendation');
+            recommendationDiv.innerHTML = `
+                <p>We recommend:</p>
+                <p><strong>${randomFilm.title}</strong> (${randomFilm.year}) - ${randomFilm.genre}</p>
+            `;
+        });
+    </script>
+</body>
+</html>
